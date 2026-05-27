@@ -1,0 +1,15 @@
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Pip log files and download cache
+pip-log.txt
+pip-delete-this-directory.txt
+.pip-cache/
+
+# Python compiled files
+**/__pycache__/
+*.py[cod]
+*$py.class
