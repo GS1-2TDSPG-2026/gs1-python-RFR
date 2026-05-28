@@ -1,4 +1,4 @@
-from fastapi import Fas	tAPI
+from fastapi import FastAPI
 from app.api.routes import router
 from app.models.predictor import carregar_modelo
 
