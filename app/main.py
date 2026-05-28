@@ -14,8 +14,8 @@ from app.models.predictor import carregar_modelo
 # Cria a aplicação FastAPI com metadados que aparecem na documentação
 app = FastAPI(
     title="Biomassa IA — Motor Preditivo",
-    docs_url=None
-    redoc_url="/docs"
+    docs_url=None,
+    redoc_url="/docs",
     description="Serviço de previsão de crescimento de biomassa usando Machine Learning.",
     version="1.0.0",
     contact={"name": "Equipe de IA"},
