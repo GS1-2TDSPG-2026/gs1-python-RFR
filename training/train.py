@@ -2,16 +2,19 @@ import os
 import pandas as pd
 import numpy as np
 import joblib
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error, r2_score
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
 
-FEATURES = ["ph", "temperatura", "turbidez", "luminosidade", "radiacaoPar"]
+from app.data.preprocessor import criar_janelas, FEATURES, JANELA
+
 TARGET = "biomassa"
 
 ARTIFACTS_DIR = os.path.join(os.path.dirname(__file__), "../artifacts")
-MODEL_PATH  = os.path.join(ARTIFACTS_DIR, "model.pkl")
+MODEL_PATH  = os.path.join(ARTIFACTS_DIR, "model_lstm.keras")
 SCALER_PATH = os.path.join(ARTIFACTS_DIR, "scaler.pkl")
 
 
@@ -59,39 +62,44 @@ def carregar_dados_oracle() -> pd.DataFrame:
 
 
 def treinar(df: pd.DataFrame) -> None:
-    X = df[FEATURES].values
-    y = df[TARGET].values
+    scaler = StandardScaler()
+    df[FEATURES] = scaler.fit_transform(df[FEATURES])
+
+    X, y = criar_janelas(df, JANELA)
 
     X_treino, X_teste, y_treino, y_teste = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
 
-    scaler = StandardScaler()
-    X_treino_scaled = scaler.fit_transform(X_treino)
-    X_teste_scaled  = scaler.transform(X_teste)
+    modelo = Sequential([
+        LSTM(64, input_shape=(JANELA, len(FEATURES)), return_sequences=True),
+        Dropout(0.2),
+        LSTM(32),
+        Dropout(0.2),
+        Dense(1),
+    ])
+    modelo.compile(optimizer="adam", loss="mse")
 
-    print("🔧 Treinando Random Forest...")
-    modelo = RandomForestRegressor(
-        n_estimators=100,
-        max_depth=10,
-        random_state=42,
-        n_jobs=-1,
+    early_stop = EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True)
+
+    print("Treinando LSTM...")
+    modelo.fit(
+        X_treino, y_treino,
+        epochs=100,
+        batch_size=16,
+        validation_split=0.2,
+        callbacks=[early_stop],
+        verbose=1,
     )
-    modelo.fit(X_treino_scaled, y_treino)
 
-    y_pred = modelo.predict(X_teste_scaled)
+    y_pred = modelo.predict(X_teste, verbose=0).flatten()
     mae = mean_absolute_error(y_teste, y_pred)
     r2  = r2_score(y_teste, y_pred)
 
     print(f"\nMAE: {mae:.3f} g/L | R²: {r2:.3f}")
 
-    importancias = pd.Series(modelo.feature_importances_, index=FEATURES)
-    print("\nImportância das variáveis:")
-    for feat, imp in importancias.sort_values(ascending=False).items():
-        print(f"   {feat}: {imp:.3f}")
-
     os.makedirs(ARTIFACTS_DIR, exist_ok=True)
-    joblib.dump(modelo, MODEL_PATH)
+    modelo.save(MODEL_PATH)
     joblib.dump(scaler, SCALER_PATH)
     print(f"\n{MODEL_PATH}\n{SCALER_PATH}")
 
