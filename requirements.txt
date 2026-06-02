@@ -11,7 +11,5 @@ pydantic==2.7.1
 pydantic-settings==2.2.1
 pytest==8.2.0
 httpx==0.27.0
-tf-keras==2.16.0
-tensorflow==2.16.1
 apscheduler==3.10.4
 requests==2.31.0
