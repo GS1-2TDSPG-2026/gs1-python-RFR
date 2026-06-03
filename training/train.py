@@ -1,11 +1,3 @@
-"""
-train.py
---------
-Treina o modelo Random Forest e salva os artefatos.
-
-Para rodar: python -m training.train
-"""
-
 import os
 import pandas as pd
 import numpy as np

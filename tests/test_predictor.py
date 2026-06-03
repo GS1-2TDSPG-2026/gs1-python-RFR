@@ -1,9 +1,3 @@
-"""
-predictor.py
-------------
-Coração da IA. Carrega o modelo Random Forest e faz a previsão.
-"""
-
 import os
 import joblib
 import numpy as np

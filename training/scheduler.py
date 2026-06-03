@@ -1,10 +1,3 @@
-"""
-scheduler.py
-------------
-Re-treino automático do Random Forest em background.
-Intervalo configurável via .env: RETRAIN_INTERVAL_HOURS (padrão: 2)
-"""
-
 import os
 import joblib
 import numpy as np
