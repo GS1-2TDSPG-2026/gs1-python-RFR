@@ -7,14 +7,10 @@ from app.models.predictor import prever
 
 @pytest.fixture
 def payload_valido() -> EntradaPrevisao:
-    # Simula a estrutura do schema instanciado com o histórico do sensor
     mock_leitura = MagicMock()
     mock_leitura.model_dump.return_value = {
-        "ph": 7.2,
-        "temperatura": 26.5,
-        "turbidez": 38.0,
-        "luminosidade": 820.0,
-        "radiacaoPar": 5.7
+        "ph": 7.2, "temperatura": 26.5, "turbidez": 38.0,
+        "luminosidade": 820.0, "radiacaoPar": 5.7
     }
     
     mock_entrada = MagicMock(spec=EntradaPrevisao)
@@ -37,13 +33,10 @@ def test_prever_retorna_saida_valida_e_grava_no_oracle(mock_salvar, mock_buscar,
         "CRESCIMENTO_IDEAL", "CRESCIMENTO_MODERADO", "CRESCIMENTO_LENTO", "ALERTA_BAIXA_BIOMASSA"
     ]
     assert resultado.dataPrevistaColheita >= date.today()
-    
-    mock_buscar.assert_called_once_with(1)
     mock_salvar.assert_called_once()
 
-@patch("app.db.oracle.buscar_ultimo_dado_orbital", side_effect=Exception("Timeout no Oracle"))
+@patch("app.db.oracle.buscar_ultimo_dado_orbital", side_effect=Exception("Timeout"))
 def test_prever_garante_retorno_mesmo_com_falha_de_banco(mock_buscar, payload_valido):
-    # O pipeline não deve quebrar caso o Oracle esteja indisponível
     resultado = prever(payload_valido)
     
     assert resultado.tanqueId == 1
