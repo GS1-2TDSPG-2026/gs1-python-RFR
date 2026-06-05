@@ -29,4 +29,4 @@ class SaidaPrevisao(BaseModel):
     biomassaEstimada: float = Field(..., description="Biomassa prevista em g/L")
     dataPrevistaColheita: date = Field(..., description="Data estimada de colheita")
     confianca: float = Field(..., ge=0.0, le=100.0, description="Confiança do modelo em %")
-    status: str = Field(..., description="Status do crescimento")|
+    status: str = Field(..., description="Status do crescimento")

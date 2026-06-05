@@ -1,5 +1,5 @@
 def calcular_status(biomassa: float) -> str:
-    """Classifica o status operacional com base na biomassa estimada."""
+    """Classifica o status de desenvolvimento biológico do tanque."""
     if biomassa >= 15.0:
         return "CRESCIMENTO_IDEAL"
     elif biomassa >= 10.0:

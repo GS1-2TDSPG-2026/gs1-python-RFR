@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import joblib
 from sklearn.ensemble import RandomForestRegressor
+from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error, r2_score
@@ -21,10 +22,17 @@ def carregar_dados_csv(caminho: str) -> pd.DataFrame:
     return df
 
 
-def carregar_dados_oracle() -> pd.DataFrame:
-    from app.db.oracle import carregar_dados_treino
-    return carregar_dados_treino()
+df = carregar_dados_oracle()
 
+if df.empty:
+    raise ValueError(
+        "Dataset vazio. Nenhum registro encontrado para treinamento."
+    )
+
+if len(df) < 10:
+    raise ValueError(
+        f"Registros insuficientes para treinamento. Total: {len(df)}"
+    )
 
 def treinar(df: pd.DataFrame) -> None:
     X = df[FEATURES].values
@@ -58,10 +66,12 @@ def treinar(df: pd.DataFrame) -> None:
     for feat, imp in importancias.sort_values(ascending=False).items():
         print(f"  {feat}: {imp:.3f}")
 
-    os.makedirs(ARTIFACTS_DIR, exist_ok=True)
+    Path("artifacts").mkdir(exist_ok=True)
+
     joblib.dump(modelo, MODEL_PATH)
     joblib.dump(scaler, SCALER_PATH)
-    print(f"\nModelo salvo em: {MODEL_PATH}")
+
+    print("[TRAIN] Modelo salvo")
 
 
 if __name__ == "__main__":

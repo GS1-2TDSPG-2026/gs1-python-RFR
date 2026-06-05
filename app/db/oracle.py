@@ -139,21 +139,26 @@ def carregar_dados_treino() -> pd.DataFrame:
         raise
 
 
-def contar_registros_novos(desde: datetime) -> int:
-    query = """
-        SELECT COUNT(*) AS total
-        FROM TB_METRICAS_TANQUE
-        WHERE dt_leitura > :desde
+def contar_registros_novos(data_referencia):
+
+    sql = """
+    SELECT COUNT(*)
+    FROM TB_METRICAS_TANQUE
+    WHERE DT_LEITURA > :data_ref
     """
-    try:
-        with get_conexao() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query, {"desde": desde})
-                row = cursor.fetchone()
-                return int(row[0]) if row else 0
-    except Exception as e:
-        print(f"rro ao contar registros novos: {e}")
-        return 0
+
+    with get_connection() as conn:
+
+        cursor = conn.cursor()
+
+        cursor.execute(
+            sql,
+            data_ref=data_referencia
+        )
+
+        total = cursor.fetchone()[0]
+
+        return total
 
 
 def buscar_ultimo_dado_orbital(tanque_id: int) -> int | None:

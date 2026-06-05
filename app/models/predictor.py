@@ -13,7 +13,9 @@ SCALER_PATH = os.path.join(ARTIFACTS_DIR, "scaler.pkl")
 _modelo = None
 _scaler = None
 
+
 def carregar_modelo():
+    """Carrega o modelo e o scaler para a memória RAM se ainda não estiverem ativos."""
     global _modelo, _scaler
     if _modelo is not None and _scaler is not None:
         return _modelo, _scaler
@@ -21,38 +23,59 @@ def carregar_modelo():
     if os.path.exists(MODEL_PATH) and os.path.exists(SCALER_PATH):
         _modelo = joblib.load(MODEL_PATH)
         _scaler = joblib.load(SCALER_PATH)
-        print("Artefatos RFR carregados com sucesso.")
+        print("Artefatos do Random Forest Regressor (RFR) carregados com sucesso.")
     else:
-        raise FileNotFoundError("Artefatos ausentes. Execute training/train.py primeiro.")
+        raise FileNotFoundError(
+            "Artefatos pkl ausentes. Execute o script training/train.py para gerar os baselines iniciais."
+        )
     
     return _modelo, _scaler
+
+if _modelo is None:
+    raise RuntimeError(
+        "Modelo não carregado."
+    )
+
+if _scaler is None:
+    raise RuntimeError(
+        "Scaler não carregado."
+    )
+
 
 def prever(entrada: EntradaPrevisao) -> SaidaPrevisao:
     modelo, scaler = carregar_modelo()
 
-    ultima_leitura = entrada.historico[-1].model_dump()
+    # Extrai a última leitura contida no histórico (RFR opera sobre input tabular pontual)
     features = np.array([[
-        ultima_leitura["ph"],
-        ultima_leitura["temperatura"],
-        ultima_leitura["turbidez"],
-        ultima_leitura["luminosidade"],
-        ultima_leitura["radiacaoPar"]
+        entrada.ph,
+        entrada.temperatura,
+        entrada.turbidez,
+        entrada.luminosidade,
+        entrada.radiacaoPar
     ]])
 
+    # Normalização bidimensional instantânea em memória
     features_scaled = scaler.transform(features)
     biomassa_estimada = round(float(modelo.predict(features_scaled)[0]), 2)
 
+    # Regras de Negócio e Projeções
     LIMIAR_COLHEITA = 20.0
     TAXA_CRESCIMENTO_DIARIA = 0.5
-    dias_para_colheita = 0 if biomassa_estimada >= LIMIAR_COLHEITA else int((LIMIAR_COLHEITA - biomassa_estimada) / TAXA_CRESCIMENTO_DIARIA)
+    
+    dias_para_colheita = (
+        0 if biomassa_estimada >= LIMIAR_COLHEITA 
+        else int((LIMIAR_COLHEITA - biomassa_estimada) / TAXA_CRESCIMENTO_DIARIA)
+    )
     data_colheita = date.today() + timedelta(days=dias_para_colheita)
 
+    # Cálculo estatístico real de confiança baseado na variância das árvores do ensemble
     preds_arvores = np.array([tree.predict(features_scaled)[0] for tree in modelo.estimators_])
     desvio = float(np.std(preds_arvores))
     confianca = round(max(0.0, min(100.0, 100.0 - (desvio * 15))), 1)
 
     status = calcular_status(biomassa_estimada)
 
+    # Persistência Assíncrona / Fail-Silent no Oracle
     try:
         from app.db.oracle import salvar_previsao, buscar_ultimo_dado_orbital
         id_dado_orbital = buscar_ultimo_dado_orbital(entrada.tanqueId)
@@ -66,7 +89,7 @@ def prever(entrada: EntradaPrevisao) -> SaidaPrevisao:
                 modelo="RFR_v1"
             )
     except Exception as e:
-        pass # Fail silent garantido para o payload retornar mesmo sem Oracle
+        print(f"Sincronização Oracle ignorada em tempo de execução: {e}")
 
     return SaidaPrevisao(
         tanqueId=entrada.tanqueId,
