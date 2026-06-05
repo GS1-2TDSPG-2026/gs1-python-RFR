@@ -31,16 +31,6 @@ def carregar_modelo():
     
     return _modelo, _scaler
 
-if _modelo is None:
-    raise RuntimeError(
-        "Modelo não carregado."
-    )
-
-if _scaler is None:
-    raise RuntimeError(
-        "Scaler não carregado."
-    )
-
 
 def prever(entrada: EntradaPrevisao) -> SaidaPrevisao:
     modelo, scaler = carregar_modelo()

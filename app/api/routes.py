@@ -18,21 +18,4 @@ def endpoint_prever(entrada: EntradaPrevisao) -> SaidaPrevisao:
 
 @router.get("/health", summary="Verificar se a API está funcionando")
 def health_check() -> dict:
-    return {
-    "tanqueId": entrada.tanqueId,
-
-    "dadosEntrada": {
-        "ph": entrada.ph,
-        "temperatura": entrada.temperatura,
-        "turbidez": entrada.turbidez,
-        "luminosidade": entrada.luminosidade,
-        "radiacaoPar": entrada.radiacaoPar,
-    },
-
-    "resultado": {
-        "biomassaEstimada": biomassa,
-        "dataPrevistaColheita": data_colheita,
-        "confianca": confianca,
-        "status": status,
-    },
-}
+    return {"status": "ok", "servico": "biomassa-ia", "versao": "1.0.0"}

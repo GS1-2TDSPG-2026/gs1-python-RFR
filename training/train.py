@@ -22,18 +22,6 @@ def carregar_dados_csv(caminho: str) -> pd.DataFrame:
     return df
 
 
-df = carregar_dados_oracle()
-
-if df.empty:
-    raise ValueError(
-        "Dataset vazio. Nenhum registro encontrado para treinamento."
-    )
-
-if len(df) < 10:
-    raise ValueError(
-        f"Registros insuficientes para treinamento. Total: {len(df)}"
-    )
-
 def treinar(df: pd.DataFrame) -> None:
     X = df[FEATURES].values
     y = df[TARGET].values

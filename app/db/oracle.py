@@ -16,9 +16,9 @@ SEVERIDADES_VALIDAS = {"BAIXA", "MEDIA", "ALTA", "CRITICA"}
 
 def get_conexao():
     return oracledb.connect(
-        user=os.getenv("ORACLE_USER", "system"),
-        password=os.getenv("ORACLE_PASSWORD", "oracle"),
-        dsn=os.getenv("ORACLE_DSN", "localhost:1521/XEPDB1"),
+        user=os.getenv("ORACLE_USER", "rm562085"),
+        password=os.getenv("ORACLE_PASSWORD", "140207"),
+        dsn=os.getenv("ORACLE_DSN", "oracle.fiap.com.br:1521/ORCL"),
     )
 
 
@@ -147,7 +147,7 @@ def contar_registros_novos(data_referencia):
     WHERE DT_LEITURA > :data_ref
     """
 
-    with get_connection() as conn:
+    with get_conexao() as conn:
 
         cursor = conn.cursor()
 
