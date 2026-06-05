@@ -7,16 +7,13 @@ from app.models.predictor import prever
 
 @pytest.fixture
 def payload_valido() -> EntradaPrevisao:
-    mock_leitura = MagicMock()
-    mock_leitura.model_dump.return_value = {
-        "ph": 7.2, "temperatura": 26.5, "turbidez": 38.0,
-        "luminosidade": 820.0, "radiacaoPar": 5.7
-    }
-    
     mock_entrada = MagicMock(spec=EntradaPrevisao)
     mock_entrada.tanqueId = 1
-    mock_entrada.historico = [mock_leitura]
-    
+    mock_entrada.ph = 7.2
+    mock_entrada.temperatura = 26.5
+    mock_entrada.turbidez = 38.0
+    mock_entrada.luminosidade = 820.0
+    mock_entrada.radiacaoPar = 5.7
     return mock_entrada
 
 @patch("app.db.oracle.buscar_ultimo_dado_orbital")

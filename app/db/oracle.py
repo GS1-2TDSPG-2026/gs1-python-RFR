@@ -57,7 +57,7 @@ def salvar_previsao(
                 })
             conn.commit()
     except Exception as e:
-        print(f"rro ao salvar previsão: {e}")
+        print(f"Erro ao salvar previsão: {e}")
 
 
 def salvar_alerta(
@@ -71,10 +71,10 @@ def salvar_alerta(
     severidade = severidade.upper()
 
     if tipo_alerta not in TIPOS_ALERTA_VALIDOS:
-        print(f"ipo_alerta inválido '{tipo_alerta}'. Válidos: {TIPOS_ALERTA_VALIDOS}")
+        print(f"Tipo_alerta inválido '{tipo_alerta}'. Válidos: {TIPOS_ALERTA_VALIDOS}")
         return
     if severidade not in SEVERIDADES_VALIDAS:
-        print(f"everidade inválida '{severidade}'. Válidas: {SEVERIDADES_VALIDAS}")
+        print(f"Severidade inválida '{severidade}'. Válidas: {SEVERIDADES_VALIDAS}")
         return
 
     sql = """
@@ -97,7 +97,7 @@ def salvar_alerta(
                 })
             conn.commit()
     except Exception as e:
-        print(f"rro ao salvar alerta: {e}")
+        print(f"Erro ao salvar alerta: {e}")
 
 
 def carregar_dados_treino() -> pd.DataFrame:
@@ -177,5 +177,5 @@ def buscar_ultimo_dado_orbital(tanque_id: int) -> int | None:
                 row = cursor.fetchone()
                 return int(row[0]) if row else None
     except Exception as e:
-        print(f"rro ao buscar dado orbital: {e}")
+        print(f"Erro ao buscar dado orbital: {e}")
         return None
