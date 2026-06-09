@@ -132,7 +132,10 @@ def carregar_dados_treino() -> pd.DataFrame:
     try:
         with get_conexao() as conn:
             df = pd.read_sql(query, con=conn)
-        print(f"🗄️  Oracle: {len(df)} registros carregados para treino")
+
+	df.columns = [c.lower() for c in df.columns]
+
+        print(f"racle: {len(df)} registros carregados para treino")
         return df
     except Exception as e:
         print(f"Erro ao carregar dados de treino: {e}")
