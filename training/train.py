@@ -2,8 +2,8 @@ import os
 import pandas as pd
 import numpy as np
 import joblib
-from sklearn.ensemble import RandomForestRegressor
 from pathlib import Path
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error, r2_score
@@ -54,33 +54,37 @@ def treinar(df: pd.DataFrame) -> None:
     for feat, imp in importancias.sort_values(ascending=False).items():
         print(f"  {feat}: {imp:.3f}")
 
-    Path("artifacts").mkdir(exist_ok=True)
-
+    Path(ARTIFACTS_DIR).mkdir(exist_ok=True)
     joblib.dump(modelo, MODEL_PATH)
     joblib.dump(scaler, SCALER_PATH)
-
     print("[TRAIN] Modelo salvo")
 
 
-if __name__ == "__main__":
-    # Prioridade: Oracle > CSV histórico > sintético
+def treinar_modelo() -> None:
+    """
+    Wrapper público chamado por main.py e scheduler.py.
+    Prioridade: Oracle > CSV histórico > sintético.
+    """
     csv_path = os.path.join(ARTIFACTS_DIR, "dataset_historico.csv")
+
+    df = None
 
     if os.getenv("ORACLE_USER"):
         try:
-            df = carregar_dados_oracle()
+            from app.db.oracle import carregar_dados_treino
+            df = carregar_dados_treino()
             print("Usando dados reais do Oracle")
         except Exception as e:
             print(f"Oracle falhou ({e}), tentando CSV...")
-            df = pd.read_csv(csv_path) if os.path.exists(csv_path) else None
-    elif os.path.exists(csv_path):
+
+    if df is None and os.path.exists(csv_path):
         df = pd.read_csv(csv_path)
         print(f"Usando dataset histórico: {len(df)} registros")
-    else:
+
+    if df is None:
         print("Gerando dados sintéticos...")
         np.random.seed(42)
         n = 500
-
         df = pd.DataFrame({
             "ph":           np.random.uniform(6.0, 9.0, n),
             "temperatura":  np.random.uniform(18.0, 35.0, n),
@@ -98,4 +102,8 @@ if __name__ == "__main__":
         ).clip(1.0, 25.0)
 
     treinar(df)
+
+
+if __name__ == "__main__":
+    treinar_modelo()
     print("\nTreinamento concluído!")

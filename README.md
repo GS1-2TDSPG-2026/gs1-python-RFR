@@ -23,7 +23,7 @@ API de Machine Learning para previsão de crescimento de biomassa em tanques de 
 
 ## Visão Geral
 
-Este serviço expõe uma API REST que recebe dados de sensores IoT (pH, temperatura, turbidez, luminosidade, radiação PAR) e retorna a previsão de biomassa (g/L) para as próximas 48h, a data estimada de colheita e a confiança do modelo.
+Este serviço expõe uma API REST que recebe dados de sensores IoT (pH, temperatura, turbidez, luminosidade, radiação PAR) e retorna a biomassa estimada atual e a data prevista de colheita. A data estimada de colheita e a confiança do modelo.
 
 O modelo é um **Random Forest Regressor** (scikit-learn) treinado com histórico de medições e colheitas armazenados no Oracle.
 
@@ -75,8 +75,8 @@ python3 --version
 
 ```bash
 # Clone o repositório
-git clone https://github.com/GS1-2TDSPG-2026/gs1-python-LSTM.git
-cd gs1-python-LSTM
+git clone https://github.com/GS1-2TDSPG-2026/gs1-python-RFR.git
+cd gs1-python-RFR
 
 # Crie e ative o ambiente virtual
 python3 -m venv .venv
@@ -269,8 +269,8 @@ sudo apt update
 sudo apt install python3.11 python3.11-venv python3-pip git -y
 
 # Clone o projeto
-git clone https://github.com/GS1-2TDSPG-2026/gs1-python-LSTM.git
-cd gs1-python-LSTM
+git clone https://github.com/GS1-2TDSPG-2026/gs1-python-RFR.git
+cd gs1-python-RFR
 
 # Ambiente virtual e dependências
 python3.11 -m venv .venv
@@ -299,9 +299,9 @@ After=network.target
 [Service]
 Type=simple
 User=ubuntu
-WorkingDirectory=/home/ubuntu/gs1-python-LSTM
-EnvironmentFile=/home/ubuntu/gs1-python-LSTM/.env
-ExecStart=/home/ubuntu/gs1-python-LSTM/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
+WorkingDirectory=/home/ubuntu/gs1-python-RFR
+EnvironmentFile=/home/ubuntu/gs1-python-RFR/.env
+ExecStart=/home/ubuntu/gs1-python-RFR/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
 Restart=always
 RestartSec=5
 
@@ -335,7 +335,7 @@ Lembre-se também de liberar a porta `8000` no **Security List** da subnet no Co
 ## Estrutura do Projeto
 
 ```
-gs1-python-LSTM/
+gs1-python-RFR/
 ├── app/
 │   ├── api/
 │   │   └── routes.py

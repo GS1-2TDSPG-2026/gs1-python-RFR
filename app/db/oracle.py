@@ -16,9 +16,9 @@ SEVERIDADES_VALIDAS = {"BAIXA", "MEDIA", "ALTA", "CRITICA"}
 
 def get_conexao():
     return oracledb.connect(
-        user=os.getenv("ORACLE_USER", "rm562085"),
-        password=os.getenv("ORACLE_PASSWORD", "140207"),
-        dsn=os.getenv("ORACLE_DSN", "oracle.fiap.com.br:1521/ORCL"),
+        user=os.getenv("ORACLE_USER"),
+        password=os.getenv("ORACLE_PASSWORD"),
+        dsn=os.getenv("ORACLE_DSN"),
     )
 
 
